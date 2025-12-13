@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "figma-export": {
+      "command": "node",
+      "args": [
+        "/Users/yinzhuoxuan/Desktop/js/MCP-READER/mcp-export-server.js"
+      ],
+      "env": {
+        "EXPORT_DIR": "/Users/yinzhuoxuan/Desktop/js"
+      }
+    }
+  }
+}
+

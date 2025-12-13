@@ -1,0 +1,25 @@
+{
+  "name": "mcp-figma-chrome-extension",
+  "version": "1.0.0",
+  "description": "Chrome 扩展：通过 MCP 协议读取 Figma 设计文件",
+  "main": "mcp-server-example.js",
+  "scripts": {
+    "server": "node mcp-server-example.js",
+    "load-env": "node load-env.js",
+    "build": "node build.js",
+    "pack": "node build.js"
+  },
+  "keywords": [
+    "chrome-extension",
+    "mcp",
+    "figma",
+    "design-tools"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+}
+

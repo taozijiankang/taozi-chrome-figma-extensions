@@ -1,0 +1,21 @@
+{
+  "name": "taozi-chrome-extensions--mcp",
+  "version": "1.0.0",
+  "description": "桃子科技的浏览器插件mcp",
+  "private": true,
+  "type": "module",
+  "bin": {},
+  "scripts": {
+    "clean": "rm -rf dist && rm -rf node_modules/.ts-build-info",
+    "build-w": "pnpm run clean && pnpm run build",
+    "build": "pnpm run clean && tsc -b"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
+    "zod": "^4.1.13"
+  }
+}

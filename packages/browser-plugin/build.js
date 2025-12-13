@@ -7,10 +7,8 @@
 
 const fs = require("fs");
 const path = require("path");
-const { execSync } = require("child_process");
 
 const DIST_DIR = path.join(__dirname, "dist");
-const EXTENSION_NAME = "mcp-figma-reader";
 const VERSION = require("./package.json").version || "1.0.0";
 
 // 需要打包的文件和目录
@@ -57,28 +55,6 @@ function copyDirectory(src, dest) {
     } else {
       copyFile(srcPath, destPath);
     }
-  }
-}
-
-function createZip() {
-  const zipFileName = `${EXTENSION_NAME}-v${VERSION}.zip`;
-  const zipPath = path.join(__dirname, zipFileName);
-
-  // 删除已存在的 zip 文件
-  if (fs.existsSync(zipPath)) {
-    fs.unlinkSync(zipPath);
-  }
-
-  try {
-    // 使用 zip 命令创建压缩包
-    process.chdir(DIST_DIR);
-    execSync(`zip -r "${zipPath}" .`, { stdio: "inherit" });
-    process.chdir(__dirname);
-    console.log(`\n✓ 创建压缩包: ${zipFileName}`);
-    console.log(`  路径: ${zipPath}`);
-  } catch (error) {
-    console.warn("\n⚠ 无法创建 .zip 文件（可能需要安装 zip 工具）");
-    console.warn("  你可以手动将 dist 目录压缩为 .zip 文件");
   }
 }
 
@@ -165,9 +141,6 @@ function build() {
   console.log('3. 开启"开发者模式"');
   console.log('4. 点击"加载已解压的扩展程序"');
   console.log("5. 选择 dist 目录\n");
-
-  // 创建 zip 文件
-  createZip();
 }
 
 // 运行打包

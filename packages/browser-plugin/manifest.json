@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "MCP Figma 链接读取工具",
+  "name": "taozi-chrome-extensions-mcp-figma-reader",
   "version": "1.0.0",
   "description": "通过 MCP 协议读取 Figma 设计文件的 Chrome 扩展",
   "permissions": [

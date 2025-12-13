@@ -4,11 +4,6 @@ package-lock.json
 
 # Chrome extension
 *.crx
-*.pem
-
-# Environment variables
-.env
-.env.local
 
 # OS files
 .DS_Store
@@ -28,8 +23,3 @@ npm-debug.log*
 dist/
 *.zip
 version.json
-
-# Environment variables
-.env
-env.config.js
-

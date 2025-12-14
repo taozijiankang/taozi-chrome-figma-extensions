@@ -1,0 +1,15 @@
+{
+  "name": "taozi-chrome-figma-extensions",
+  "version": "1.0.0",
+  "description": "taozi科技的谷歌浏览器Figma扩展工具",
+  "scripts": {
+    "turbo:package": "turbo run package"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@9.11.0",
+  "devDependencies": {
+    "turbo": "^2.5.0"
+  }
+}

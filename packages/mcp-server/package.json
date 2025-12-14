@@ -1,12 +1,9 @@
 {
-  "name": "taozi-chrome-extensions--mcp",
+  "name": "@taozi-chrome-figma-extensions/mcp-server",
   "version": "1.0.0",
-  "description": "桃子科技的浏览器插件mcp",
+  "description": "桃子科技的Figma浏览器插件mcp服务器",
   "private": true,
   "type": "module",
-  "bin": {
-    "mcp-server": "./dist/start.js"
-  },
   "scripts": {
     "dev": "tsc -b -w",
     "dev-start": "nodemon dist/start.js --watch dist",

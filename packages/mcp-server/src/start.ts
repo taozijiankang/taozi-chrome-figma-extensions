@@ -154,6 +154,7 @@ async function start(options: AppStartOptions) {
     }
   });
 
+  console.log(chalk.green(`MCP 版本: ${packageJson.version}`));
   console.log(chalk.green(`MCP 已启动 http://localhost:${mcpPort}`));
   console.log(chalk.green(`MCP 连接浏览器插件的WS 已启动 ws://localhost:${wsPort}`));
   console.log(chalk.blue(`MCP 服务器主页: http://localhost:${mcpPort}/`));

@@ -37,9 +37,7 @@ class MCPClient {
       // 1. HTTP JSON-RPC 格式
       // 2. 简化的 REST API 格式
 
-      const isWebSocket =
-        this.serverUrl.startsWith("ws://") ||
-        this.serverUrl.startsWith("wss://");
+      const isWebSocket = this.serverUrl.startsWith("ws://") || this.serverUrl.startsWith("wss://");
 
       if (isWebSocket) {
         // WebSocket 连接（需要建立持久连接）
@@ -69,15 +67,15 @@ class MCPClient {
           jsonrpc: "2.0",
           id: Date.now(),
           method: "tools/list",
-          params: {},
+          params: {}
         };
 
         const listResponse = await fetch(mcpUrl, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
-          body: JSON.stringify(listToolsRequest),
+          body: JSON.stringify(listToolsRequest)
         });
 
         if (listResponse.ok) {
@@ -86,7 +84,7 @@ class MCPClient {
             availableTools = listResult.result.tools;
             console.log(
               "可用工具列表:",
-              availableTools.map((t) => t.name)
+              availableTools.map(t => t.name)
             );
           }
         }
@@ -98,7 +96,7 @@ class MCPClient {
       let toolName = null;
       if (availableTools.length > 0) {
         const figmaTool = availableTools.find(
-          (tool) =>
+          tool =>
             tool.name.toLowerCase().includes("figma") ||
             tool.name.toLowerCase().includes("get_figma_data") ||
             tool.name.toLowerCase().includes("get_figma")
@@ -111,12 +109,7 @@ class MCPClient {
       // 如果没有找到工具名，尝试常见的工具名
       const possibleNames = toolName
         ? [toolName]
-        : [
-            "get_figma_data",
-            "mcp_Framelink_MCP_for_Figma_get_figma_data",
-            "figma/get_data",
-            "getFigmaData",
-          ];
+        : ["get_figma_data", "mcp_Framelink_MCP_for_Figma_get_figma_data", "figma/get_data", "getFigmaData"];
 
       // 构建参数对象
       const args = { fileKey };
@@ -134,16 +127,16 @@ class MCPClient {
             method: "tools/call",
             params: {
               name: name,
-              arguments: args,
-            },
+              arguments: args
+            }
           };
 
           const response = await fetch(mcpUrl, {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
+              "Content-Type": "application/json"
             },
-            body: JSON.stringify(jsonRpcRequest),
+            body: JSON.stringify(jsonRpcRequest)
           });
 
           if (!response.ok) {
@@ -160,10 +153,7 @@ class MCPClient {
               continue;
             }
             // 其他错误直接抛出
-            throw new Error(
-              result.error.message ||
-                `MCP 服务器返回错误: ${JSON.stringify(result.error)}`
-            );
+            throw new Error(result.error.message || `MCP 服务器返回错误: ${JSON.stringify(result.error)}`);
           }
 
           // 成功返回结果
@@ -171,10 +161,7 @@ class MCPClient {
         } catch (error) {
           lastError = error;
           // 如果不是方法未找到错误，直接抛出
-          if (
-            !error.message.includes("Method not found") &&
-            !error.message.includes("-32601")
-          ) {
+          if (!error.message.includes("Method not found") && !error.message.includes("-32601")) {
             throw error;
           }
           // 继续尝试下一个工具名
@@ -185,19 +172,16 @@ class MCPClient {
       // 所有工具名都失败了
       if (lastError) {
         throw new Error(
-          `无法找到可用的 Figma 工具。已尝试: ${possibleNames.join(
-            ", "
-          )}。错误: ${lastError.message || JSON.stringify(lastError)}`
+          `无法找到可用的 Figma 工具。已尝试: ${possibleNames.join(", ")}。错误: ${
+            lastError.message || JSON.stringify(lastError)
+          }`
         );
       }
 
       throw new Error("无法连接到 MCP 服务器");
     } catch (error) {
       // 如果 JSON-RPC 失败，尝试简化的 REST API
-      if (
-        error.message.includes("无法找到可用的") ||
-        error.message.includes("Method not found")
-      ) {
+      if (error.message.includes("无法找到可用的") || error.message.includes("Method not found")) {
         throw error; // 不尝试 REST API，直接抛出错误
       }
       return await this.fetchViaSimpleREST(fileKey, nodeId);
@@ -219,12 +203,12 @@ class MCPClient {
     const response = await fetch(restUrl, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         fileKey,
-        nodeId,
-      }),
+        nodeId
+      })
     });
 
     if (!response.ok) {
@@ -253,13 +237,13 @@ class MCPClient {
           method: "tools/call",
           params: {
             name: "get_figma_data",
-            arguments: args,
-          },
+            arguments: args
+          }
         };
         ws.send(JSON.stringify(request));
       };
 
-      ws.onmessage = (event) => {
+      ws.onmessage = event => {
         try {
           const response = JSON.parse(event.data);
           ws.close();
@@ -275,17 +259,14 @@ class MCPClient {
         }
       };
 
-      ws.onerror = (error) => {
+      ws.onerror = error => {
         ws.close();
         reject(new Error("WebSocket 连接错误"));
       };
 
       // 设置超时
       setTimeout(() => {
-        if (
-          ws.readyState === WebSocket.OPEN ||
-          ws.readyState === WebSocket.CONNECTING
-        ) {
+        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
           ws.close();
           reject(new Error("请求超时"));
         }
@@ -301,9 +282,7 @@ class MCPClient {
     const accessToken = result.figmaAccessToken;
 
     if (!accessToken) {
-      throw new Error(
-        "请先配置 Figma Access Token。您可以在 Figma 设置中生成 Personal Access Token。"
-      );
+      throw new Error("请先配置 Figma Access Token。您可以在 Figma 设置中生成 Personal Access Token。");
     }
 
     try {
@@ -314,8 +293,8 @@ class MCPClient {
 
       const response = await fetch(url, {
         headers: {
-          "X-Figma-Token": accessToken,
-        },
+          "X-Figma-Token": accessToken
+        }
       });
 
       if (!response.ok) {
@@ -416,7 +395,7 @@ async function handleFetchFigmaData(request, sendResponse) {
   } catch (error) {
     sendResponse({
       success: false,
-      error: error.message,
+      error: error.message
     });
   }
 }
@@ -433,10 +412,7 @@ async function handleDownloadFigmaImages(request, sendResponse) {
     }
 
     // 获取保存的 token
-    const result = await chrome.storage.sync.get([
-      "mcpToken",
-      "figmaAccessToken",
-    ]);
+    const result = await chrome.storage.sync.get(["mcpToken", "figmaAccessToken"]);
     const token = result.mcpToken || result.figmaAccessToken;
 
     if (!token) {
@@ -493,7 +469,7 @@ async function handleDownloadFigmaImages(request, sendResponse) {
               const apiUrl = `https://api.figma.com/v1/images/${fileKey}?ids=${encodeURIComponent(
                 nodeIdForDownload
               )}&format=png&scale=${pngScale}`;
-              
+
               // 调试日志：输出构建的 API URL 和参数
               console.log(`[Figma API] 下载图片 (handleDownloadFigmaImages):`, {
                 fileKey,
@@ -502,11 +478,11 @@ async function handleDownloadFigmaImages(request, sendResponse) {
                 scale: pngScale,
                 apiUrl: apiUrl
               });
-              
+
               const response = await fetch(apiUrl, {
                 headers: {
-                  "X-Figma-Token": token,
-                },
+                  "X-Figma-Token": token
+                }
               });
 
               if (response.ok) {
@@ -532,16 +508,14 @@ async function handleDownloadFigmaImages(request, sendResponse) {
                       binary += String.fromCharCode.apply(null, chunk);
                     }
                     const base64 = btoa(binary);
-                    const dataUrl = `data:${
-                      blob.type || "image/png"
-                    };base64,${base64}`;
+                    const dataUrl = `data:${blob.type || "image/png"};base64,${base64}`;
 
                     downloadResults.push({
                       fileName: node.fileName,
                       imageRef: imageRef,
                       nodeId: node.nodeId,
                       url: dataUrl,
-                      blobType: blob.type || "image/png",
+                      blobType: blob.type || "image/png"
                     });
                     continue; // 成功下载，继续下一个
                   }
@@ -557,8 +531,8 @@ async function handleDownloadFigmaImages(request, sendResponse) {
           const directUrl = `https://www.figma.com/file/${fileKey}/image/${imageRef}?scale=${pngScale}`;
           const response = await fetch(directUrl, {
             headers: {
-              "X-Figma-Token": token,
-            },
+              "X-Figma-Token": token
+            }
           });
 
           if (response.ok) {
@@ -583,12 +557,10 @@ async function handleDownloadFigmaImages(request, sendResponse) {
               imageRef: imageRef,
               nodeId: node.nodeId,
               url: dataUrl,
-              blobType: blob.type || "image/png",
+              blobType: blob.type || "image/png"
             });
           } else {
-            throw new Error(
-              `无法下载图片: ${response.status} ${response.statusText}`
-            );
+            throw new Error(`无法下载图片: ${response.status} ${response.statusText}`);
           }
         } catch (fetchError) {
           console.warn(`下载图片失败:`, fetchError);
@@ -599,7 +571,7 @@ async function handleDownloadFigmaImages(request, sendResponse) {
             imageRef: imageRef,
             nodeId: node.nodeId,
             url: null,
-            error: fetchError.message || "下载失败",
+            error: fetchError.message || "下载失败"
           });
         }
       } catch (error) {
@@ -609,7 +581,7 @@ async function handleDownloadFigmaImages(request, sendResponse) {
           imageRef: node.imageRef,
           nodeId: node.nodeId,
           url: null,
-          error: error.message,
+          error: error.message
         });
       }
     }
@@ -618,7 +590,7 @@ async function handleDownloadFigmaImages(request, sendResponse) {
   } catch (error) {
     sendResponse({
       success: false,
-      error: error.message,
+      error: error.message
     });
   }
 }
@@ -635,18 +607,13 @@ async function handleUploadImageToOSS(request, sendResponse) {
     }
 
     // 获取 OSS 配置
-    const result = await chrome.storage.sync.get([
-      "ossUploadUrl",
-      "ossSystemCode",
-      "ossBelongCode",
-      "ossBelongID",
-    ]);
+    const result = await chrome.storage.sync.get(["ossUploadUrl", "ossSystemCode", "ossBelongCode", "ossBelongID"]);
 
     const ossConfig = {
       url: result.ossUploadUrl || "https://file.jk.100cbc.com/api/sys/file",
       systemCode: result.ossSystemCode || "PHARMACY",
       belongCode: result.ossBelongCode || "RP",
-      belongID: result.ossBelongID || "210304103256552626",
+      belongID: result.ossBelongID || "210304103256552626"
     };
 
     if (!ossConfig.url) {
@@ -676,7 +643,7 @@ async function handleUploadImageToOSS(request, sendResponse) {
 
     const response = await fetch(ossConfig.url, {
       method: "POST",
-      body: formData,
+      body: formData
     });
 
     if (!response.ok) {
@@ -685,11 +652,7 @@ async function handleUploadImageToOSS(request, sendResponse) {
     }
 
     const data = await response.json();
-    const ossUrl =
-      data.data?.remoteAddress ||
-      data.data?.remoteUrl ||
-      data.remoteUrl ||
-      data.url;
+    const ossUrl = data.data?.remoteAddress || data.data?.remoteUrl || data.remoteUrl || data.url;
 
     if (!ossUrl) {
       throw new Error("无法从响应中获取 OSS URL");
@@ -701,13 +664,13 @@ async function handleUploadImageToOSS(request, sendResponse) {
         imageRef,
         nodeId,
         fileName,
-        ossUrl,
-      },
+        ossUrl
+      }
     });
   } catch (error) {
     sendResponse({
       success: false,
-      error: error.message,
+      error: error.message
     });
   }
 }
@@ -729,7 +692,7 @@ async function handleBatchUploadImagesToOSS(request, sendResponse) {
       try {
         const response = await chrome.runtime.sendMessage({
           action: "uploadImageToOSS",
-          data: fileData,
+          data: fileData
         });
 
         if (response && response.success) {
@@ -737,13 +700,13 @@ async function handleBatchUploadImagesToOSS(request, sendResponse) {
         } else {
           results.push({
             ...fileData,
-            error: response?.error || "上传失败",
+            error: response?.error || "上传失败"
           });
         }
       } catch (error) {
         results.push({
           ...fileData,
-          error: error.message,
+          error: error.message
         });
       }
     }
@@ -752,7 +715,7 @@ async function handleBatchUploadImagesToOSS(request, sendResponse) {
   } catch (error) {
     sendResponse({
       success: false,
-      error: error.message,
+      error: error.message
     });
   }
 }
@@ -764,7 +727,7 @@ async function handleBatchUploadImagesToOSS(request, sendResponse) {
 async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
   try {
     const { fileKey, nodes, localPath, pngScale = 2 } = request.data;
-    
+
     // 调试日志：确认接收到的 pngScale 值
     console.log(`[handleDownloadFigmaImagesViaMCP] 接收到的参数:`, {
       fileKey,
@@ -779,10 +742,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
     }
 
     // 获取 Figma Access Token
-    const result = await chrome.storage.sync.get([
-      "mcpToken",
-      "figmaAccessToken",
-    ]);
+    const result = await chrome.storage.sync.get(["mcpToken", "figmaAccessToken"]);
     const token = result.mcpToken || result.figmaAccessToken;
 
     if (!token) {
@@ -797,15 +757,14 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
         const imageRef = node.imageRef;
         const nodeId = node.nodeId;
         const hasExportSettings = node.hasExportSettings || false; // 是否有 exportSettings
-        const resourceType =
-          node.resourceType || (node.imageRef ? "PNG" : "SVG");
+        const resourceType = node.resourceType || (node.imageRef ? "PNG" : "SVG");
         const format = node.format || (resourceType === "SVG" ? "svg" : "png");
         const isGroup = node.isGroup || false; // Group 类型的节点（按 Group 分组的 VECTOR）
 
         // 调试日志：输出节点信息
         console.log(`[handleDownloadFigmaImagesViaMCP] 处理节点:`, {
           nodeId,
-          imageRef: imageRef || 'null',
+          imageRef: imageRef || "null",
           hasExportSettings,
           resourceType,
           format,
@@ -835,7 +794,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
           // 复合 nodeId：分别处理每个部分
           nodeIdForAPI = nodeId
             .split(";")
-            .map((part) => part.replace(/-/g, ":"))
+            .map(part => part.replace(/-/g, ":"))
             .join(";");
         } else {
           // 简单 nodeId：直接替换
@@ -845,8 +804,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
         // 确定导出格式：PNG 或 SVG
         // Group 类型的节点（SVG 组合图标）始终导出为 PNG
         // 如果节点有 format 属性，使用它；否则根据是否有 imageRef 或是否为 Group 判断
-        const exportFormat =
-          node.format || (node.imageRef || isGroup ? "png" : "svg");
+        const exportFormat = node.format || (node.imageRef || isGroup ? "png" : "svg");
 
         // 通过 Figma API 下载图片或 SVG
         // Figma API: GET /v1/images/{file_key}?ids={node_ids}&format={format}&scale={scale}
@@ -868,14 +826,12 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
 
         const response = await fetch(apiUrl, {
           headers: {
-            "X-Figma-Token": token,
-          },
+            "X-Figma-Token": token
+          }
         });
 
         if (!response.ok) {
-          throw new Error(
-            `Figma API 请求失败: ${response.status} ${response.statusText}`
-          );
+          throw new Error(`Figma API 请求失败: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -898,7 +854,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
 
             // 尝试模糊匹配（可能是编码问题）
             const matchingKey = keys.find(
-              (key) =>
+              key =>
                 key === nodeIdForAPI ||
                 key.replace(/:/g, "-") === nodeId.replace(/:/g, "-") ||
                 decodeURIComponent(key) === nodeIdForAPI
@@ -914,9 +870,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
           // 下载实际的图片
           const imageResponse = await fetch(imageUrl);
           if (!imageResponse.ok) {
-            throw new Error(
-              `下载图片失败: ${imageResponse.status} ${imageResponse.statusText}`
-            );
+            throw new Error(`下载图片失败: ${imageResponse.status} ${imageResponse.statusText}`);
           }
 
           const blob = await imageResponse.blob();
@@ -935,8 +889,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
           }
           const base64 = btoa(binary);
           // 根据格式确定 MIME 类型
-          const mimeType =
-            exportFormat === "svg" ? "image/svg+xml" : blob.type || "image/png";
+          const mimeType = exportFormat === "svg" ? "image/svg+xml" : blob.type || "image/png";
           const dataUrl = `data:${mimeType};base64,${base64}`;
 
           // 生成文件名
@@ -962,7 +915,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
             nodeId: nodeId,
             format: exportFormat,
             resourceType: resourceType,
-            isGroup: isGroup, // 标记是否为 Group 类型
+            isGroup: isGroup // 标记是否为 Group 类型
           });
         } else {
           throw new Error(`Figma API 未返回图片 URL`);
@@ -987,7 +940,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
           nodeId: node.nodeId,
           url: null,
           error: error.message,
-          isGroup: node.isGroup || false,
+          isGroup: node.isGroup || false
         });
       }
     }
@@ -996,7 +949,7 @@ async function handleDownloadFigmaImagesViaMCP(request, sendResponse) {
   } catch (error) {
     sendResponse({
       success: false,
-      error: error.message,
+      error: error.message
     });
   }
 }

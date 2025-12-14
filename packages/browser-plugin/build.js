@@ -21,8 +21,9 @@ const FILES_TO_COPY = [
   "styles.css",
   "figma-mcp-utils.js",
   "mcp-image-processor.js",
+  "mcp-task-executor.js",
   "env.config.js", // 环境变量配置文件
-  "icons",
+  "icons"
 ];
 
 function copyFile(src, dest) {
@@ -75,12 +76,12 @@ function build() {
   // 处理 manifest.json - 添加 key 字段（如果存在）
   const manifestPath = path.join(__dirname, "manifest.json");
   const publicKeyPath = path.join(__dirname, "public-key.txt");
-  
+
   if (fs.existsSync(manifestPath) && fs.existsSync(publicKeyPath)) {
     try {
       const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
       const publicKey = fs.readFileSync(publicKeyPath, "utf-8").trim();
-      
+
       if (publicKey && publicKey !== "YOUR_PUBLIC_KEY_HERE") {
         manifest.key = publicKey;
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
@@ -125,12 +126,9 @@ function build() {
   // 创建版本信息文件（可选）
   const versionInfo = {
     version: VERSION,
-    buildTime: new Date().toISOString(),
+    buildTime: new Date().toISOString()
   };
-  fs.writeFileSync(
-    path.join(DIST_DIR, "version.json"),
-    JSON.stringify(versionInfo, null, 2)
-  );
+  fs.writeFileSync(path.join(DIST_DIR, "version.json"), JSON.stringify(versionInfo, null, 2));
   console.log(`✓ 创建版本信息文件`);
 
   console.log("\n✓ 打包完成！");

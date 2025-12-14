@@ -4,18 +4,34 @@
   "description": "桃子科技的浏览器插件mcp",
   "private": true,
   "type": "module",
-  "bin": {},
-  "scripts": {
-    "clean": "rm -rf dist && rm -rf node_modules/.ts-build-info",
-    "build-w": "pnpm run clean && pnpm run build",
-    "build": "pnpm run clean && tsc -b"
+  "bin": {
+    "mcp-server": "./dist/start.js"
   },
-  "devDependencies": {
-    "@types/node": "^24.9.2",
-    "typescript": "^5.9.3"
+  "scripts": {
+    "dev": "tsc -b -w",
+    "dev-start": "nodemon dist/start.js --watch dist",
+    "build": "tsc -b",
+    "start": "node dist/start.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.24.3",
-    "zod": "^4.1.13"
+    "chalk": "^4.1.2",
+    "commander": "^12.1.0",
+    "cors": "^2.8.5",
+    "cross-spawn": "^7.0.5",
+    "dayjs": "^1.11.10",
+    "express": "^5.0.1",
+    "uuid": "^13.0.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.0",
+    "@types/koa-bodyparser": "^4.3.12",
+    "@types/node": "^24.9.2",
+    "@types/ws": "^8.5.13",
+    "nodemon": "^3.1.11",
+    "typescript": "^5.9.3"
   }
 }

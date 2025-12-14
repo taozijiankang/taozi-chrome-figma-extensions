@@ -10,7 +10,6 @@ package-lock.json
 Thumbs.db
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo

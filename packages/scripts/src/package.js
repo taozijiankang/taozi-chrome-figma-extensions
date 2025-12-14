@@ -2,6 +2,14 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import dayjs from "dayjs";
+// @ts-ignore - dayjs 插件类型定义可能不完整
+import utc from "dayjs/plugin/utc.js";
+// @ts-ignore - dayjs 插件类型定义可能不完整
+import timezone from "dayjs/plugin/timezone.js";
+
+// 配置 dayjs 使用中国时区
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,9 +36,10 @@ copyPath(path.resolve(ROOT_DIR, "packages/mcp-server/dist"), path.resolve(ROOT_D
 console.log("复制 mcp-server 完成");
 
 /**
- * 设置版本号
+ * 设置版本号（使用中国时区 Asia/Shanghai）
  */
-const version = dayjs().format("YYYY.MMDD.HHmmss");
+// @ts-ignore - dayjs.tz 类型定义可能不完整
+const version = dayjs().tz("Asia/Shanghai").format("YYYY.MMDD.HHmmss");
 console.log("设置版本号", version);
 //
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(ROOT_DIST_DIR, "package.json"), "utf-8"));

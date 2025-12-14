@@ -1,245 +1,227 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MCP Figma 读取工具</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="design-name" id="designName">MCP Figma 读取工具</div>
-      <div class="subtitle">通过 MCP 协议读取 Figma 设计文件</div>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Figma 读取工具</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="design-name" id="designName">MCP Figma 读取工具</div>
+        <div class="subtitle">通过 MCP 协议读取 Figma 设计文件</div>
+      </div>
 
-    <div id="errorContainer" style="display: none;"></div>
+      <div id="errorContainer" style="display: none"></div>
 
-    <!-- Tab 导航 -->
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="operation">操作</button>
-      <button class="tab-btn" data-tab="uploaded">已上传图片</button>
-      <button class="tab-btn" data-tab="config">配置</button>
-    </div>
+      <!-- Tab 导航 -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="operation">操作</button>
+        <button class="tab-btn" data-tab="uploaded">已上传图片</button>
+        <button class="tab-btn" data-tab="config">配置</button>
+      </div>
 
-    <!-- 操作展示页 Tab -->
-    <div id="operation-tab" class="tab-content active">
-      <div class="section">
-        <div class="section-title">操作</div>
-        <div class="input-group">
-          <label for="figma-url">Figma 链接:</label>
-          <input 
-            type="text" 
-            id="figma-url" 
-            placeholder="https://www.figma.com/design/..."
-            value="https://www.figma.com/design/EgyGT09qbHblagmaYQhGtg/2024-%E4%BA%91%E9%97%A8%E8%AF%8A%E5%B0%8F%E7%A8%8B%E5%BA%8F?node-id=4257-6505&m=dev"
+      <!-- 操作展示页 Tab -->
+      <div id="operation-tab" class="tab-content active">
+        <div class="section">
+          <div class="section-title">操作</div>
+          <div class="input-group">
+            <label for="figma-url">Figma 链接:</label>
+            <input
+              type="text"
+              id="figma-url"
+              placeholder="https://www.figma.com/design/..."
+              value="https://www.figma.com/design/EgyGT09qbHblagmaYQhGtg/2024-%E4%BA%91%E9%97%A8%E8%AF%8A%E5%B0%8F%E7%A8%8B%E5%BA%8F?node-id=4257-6505&m=dev"
+            />
+            <div class="button-group">
+              <button id="refresh-btn" class="refresh-btn">从当前页面读取</button>
+            </div>
+          </div>
+          <!-- 当前图层信息 -->
+          <div
+            id="layer-info-container"
+            style="
+              display: none;
+              margin-top: 12px;
+              padding: 10px;
+              background: #f8fafc;
+              border-radius: 6px;
+              border: 1px solid #e2e8f0;
+            "
           >
-          <div class="button-group">
-            <button id="refresh-btn" class="refresh-btn">从当前页面读取</button>
+            <div class="section-title" style="font-size: 12px; margin-bottom: 8px; color: #475569">当前图层信息</div>
+            <div id="layer-info-content" style="font-size: 11px; color: #64748b; line-height: 1.6"></div>
           </div>
         </div>
-        <!-- 当前图层信息 -->
-        <div id="layer-info-container" style="display: none; margin-top: 12px; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;">
-          <div class="section-title" style="font-size: 12px; margin-bottom: 8px; color: #475569;">当前图层信息</div>
-          <div id="layer-info-content" style="font-size: 11px; color: #64748b; line-height: 1.6;"></div>
+
+        <!-- 静态资源区域 -->
+        <div class="section">
+          <div class="section-title">静态资源</div>
+          <div id="imagesContainer" class="loading">等待读取数据...</div>
         </div>
-      </div>
 
-      <!-- 静态资源区域 -->
-      <div class="section">
-        <div class="section-title">静态资源</div>
-        <div id="imagesContainer" class="loading">等待读取数据...</div>
-      </div>
-
-      <!-- 上传转换列表区域 -->
-      <div class="section">
-        <div class="section-title">上传转换列表</div>
-        <div style="margin-bottom: 12px;">
-          <div class="config-item" style="margin-bottom: 10px;">
-            <label for="png-scale" style="font-size: 12px; font-weight: 500; color: #666; margin-bottom: 4px; display: block;">
-              图片下载倍率:
-            </label>
-            <select id="png-scale" style="width: 100%; padding: 6px 8px; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 12px; background: white; cursor: pointer;">
-              <option value="0.5">0.5x</option>
-              <option value="0.75">0.75x</option>
-              <option value="1">1x</option>
-              <option value="1.5">1.5x</option>
-              <option value="2">2x</option>
-              <option value="3">3x</option>
-              <option value="4" selected>4x (推荐)</option>
-              <option value="6">6x</option>
-            </select>
-            <small style="font-size: 10px; color: #999; margin-top: 4px; display: block;">倍率越高，图片质量越好，但文件越大</small>
-          </div>
-          <div class="config-item" style="margin-bottom: 10px;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-              <input 
-                type="checkbox" 
-                id="enable-compression" 
-                style="width: auto; margin: 0;"
+        <!-- 上传转换列表区域 -->
+        <div class="section">
+          <div class="section-title">上传转换列表</div>
+          <div style="margin-bottom: 12px">
+            <div class="config-item" style="margin-bottom: 10px">
+              <label for="png-scale" style="font-size: 12px; font-weight: 500; color: #666; margin-bottom: 4px; display: block">
+                图片下载倍率:
+              </label>
+              <select
+                id="png-scale"
+                style="
+                  width: 100%;
+                  padding: 6px 8px;
+                  border: 1px solid #e0e0e0;
+                  border-radius: 4px;
+                  font-size: 12px;
+                  background: white;
+                  cursor: pointer;
+                "
               >
-              <span style="font-size: 12px;">启用图片压缩（需要配置 TinyPNG API Key）</span>
-            </label>
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1">1x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+                <option value="3">3x</option>
+                <option value="4" selected>4x (推荐)</option>
+                <option value="6">6x</option>
+              </select>
+              <small style="font-size: 10px; color: #999; margin-top: 4px; display: block"
+                >倍率越高，图片质量越好，但文件越大</small
+              >
+            </div>
+            <div class="config-item" style="margin-bottom: 10px">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer">
+                <input type="checkbox" id="enable-compression" style="width: auto; margin: 0" />
+                <span style="font-size: 12px">启用图片压缩（需要配置 TinyPNG API Key）</span>
+              </label>
+            </div>
+            <div style="margin-bottom: 12px; padding: 8px; background: #f0f7ff; border-radius: 4px; font-size: 11px; color: #666">
+              <span>✓ 默认使用后端服务（支持去重和历史记录）</span>
+            </div>
+            <button id="process-mcp-images-btn" class="primary-btn" style="width: 100%">
+              批量处理 MCP 图片（下载并上传到 OSS）
+            </button>
+            <button id="export-json-btn" class="refresh-btn" style="width: 100%; margin-top: 8px">导出处理结果 JSON</button>
           </div>
-          <div style="margin-bottom: 12px; padding: 8px; background: #f0f7ff; border-radius: 4px; font-size: 11px; color: #666;">
-            <span>✓ 默认使用后端服务（支持去重和历史记录）</span>
+          <div id="processResultContainer" style="display: none">
+            <div id="processResultContent"></div>
           </div>
-          <button id="process-mcp-images-btn" class="primary-btn" style="width: 100%;">
-            批量处理 MCP 图片（下载并上传到 OSS）
-          </button>
-          <button id="export-json-btn" class="refresh-btn" style="width: 100%; margin-top: 8px;">
-            导出处理结果 JSON
-          </button>
         </div>
-        <div id="processResultContainer" style="display: none;">
-          <div id="processResultContent"></div>
+
+        <!-- MCP 信息区域 -->
+        <div class="section">
+          <div class="section-title">MCP 链接</div>
+          <div id="mcpContainer" class="loading">等待读取数据...</div>
+        </div>
+
+        <!-- 代码信息区域 -->
+        <div class="section">
+          <div class="section-title">代码</div>
+          <div id="codeContainer" class="loading">等待读取数据...</div>
         </div>
       </div>
 
-      <!-- MCP 信息区域 -->
-      <div class="section">
-        <div class="section-title">MCP 链接</div>
-        <div id="mcpContainer" class="loading">等待读取数据...</div>
+      <!-- 已上传图片 Tab -->
+      <div id="uploaded-tab" class="tab-content">
+        <div class="section">
+          <div class="section-title" style="display: flex; justify-content: space-between; align-items: center">
+            <button id="refresh-uploaded-btn" class="refresh-btn" style="width: auto; padding: 6px 12px; font-size: 12px">
+              刷新
+            </button>
+          </div>
+          <div id="uploadedImagesContainer" class="loading">正在加载...</div>
+        </div>
       </div>
 
-      <!-- 代码信息区域 -->
-      <div class="section">
-        <div class="section-title">代码</div>
-        <div id="codeContainer" class="loading">等待读取数据...</div>
+      <!-- 配置页面 Tab -->
+      <div id="config-tab" class="tab-content">
+        <div class="section">
+          <div class="section-title">MCP 配置</div>
+          <div class="config-content">
+            <div class="config-item">
+              <label for="mcp-server">MCP 服务器地址 (可选):</label>
+              <input type="text" id="mcp-server" placeholder="https://mcp.figma.com/mcp" />
+              <small>留空则使用 Figma API（需要 Access Token）</small>
+            </div>
+
+            <div class="config-item">
+              <label for="figma-token">Figma Access Token (必填):</label>
+              <input type="text" id="figma-token" placeholder="figd_xxxxxxxxxxxxx" />
+              <small>在 Figma 设置中生成 Personal Access Token</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">后端服务配置</div>
+          <div class="config-content">
+            <div class="config-item">
+              <label for="backend-api-url">后端 API 地址 (可选):</label>
+              <input type="text" id="backend-api-url" placeholder="http://localhost:3000" />
+              <small>配置后端服务地址以使用去重和压缩功能</small>
+            </div>
+
+            <div class="config-item">
+              <label for="tiny-png-key">TinyPNG API Key (可选):</label>
+              <input type="password" id="tiny-png-key" placeholder="your-tinypng-api-key" />
+              <small>用于图片压缩，在 <a href="https://tinypng.com/developers" target="_blank">TinyPNG</a> 获取</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">OSS 上传配置</div>
+          <div class="config-content">
+            <div class="config-item">
+              <label for="oss-upload-url">上传接口地址:</label>
+              <input type="text" id="oss-upload-url" placeholder="https://file.jk.100cbc.com/api/sys/file" />
+              <small>OSS 文件上传接口地址（直接上传模式）。可通过 .env 文件配置默认值</small>
+            </div>
+
+            <div class="config-item">
+              <label for="oss-system-code">System Code:</label>
+              <input type="text" id="oss-system-code" placeholder="PHARMACY" />
+              <small>可通过 .env 文件配置默认值</small>
+            </div>
+
+            <div class="config-item">
+              <label for="oss-belong-code">Belong Code:</label>
+              <input type="text" id="oss-belong-code" placeholder="RP" />
+              <small>可通过 .env 文件配置默认值</small>
+            </div>
+
+            <div class="config-item">
+              <label for="oss-belong-id">Belong ID:</label>
+              <input type="text" id="oss-belong-id" placeholder="210304103256552626" />
+              <small>可通过 .env 文件配置默认值</small>
+            </div>
+            <button id="save-oss-config-btn" class="primary-btn" style="width: 100%; margin-top: 12px">保存配置</button>
+            <div id="ossConfigStatus" class="config-status hidden" style="margin-top: 10px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 设计文件信息区域 -->
+      <div class="section hidden" id="result-section">
+        <div class="section-title">设计文件信息</div>
+        <div id="result-content"></div>
+      </div>
+
+      <!-- 节点详情区域 -->
+      <div class="section hidden" id="node-info-section">
+        <div class="section-title">节点详情</div>
+        <div id="node-content"></div>
       </div>
     </div>
 
-    <!-- 已上传图片 Tab -->
-    <div id="uploaded-tab" class="tab-content">
-      <div class="section">
-        <div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
-          <button id="refresh-uploaded-btn" class="refresh-btn" style="width: auto; padding: 6px 12px; font-size: 12px;">
-            刷新
-          </button>
-        </div>
-        <div id="uploadedImagesContainer" class="loading">正在加载...</div>
-      </div>
-    </div>
-
-    <!-- 配置页面 Tab -->
-    <div id="config-tab" class="tab-content">
-      <div class="section">
-        <div class="section-title">MCP 配置</div>
-        <div class="config-content">
-          <div class="config-item">
-            <label for="mcp-server">MCP 服务器地址 (可选):</label>
-            <input 
-              type="text" 
-              id="mcp-server" 
-              placeholder="https://mcp.figma.com/mcp"
-            >
-            <small>留空则使用 Figma API（需要 Access Token）</small>
-          </div>
-          
-          <div class="config-item">
-            <label for="figma-token">Figma Access Token (必填):</label>
-            <input 
-              type="text" 
-              id="figma-token" 
-              placeholder="figd_xxxxxxxxxxxxx"
-            >
-            <small>在 Figma 设置中生成 Personal Access Token</small>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">后端服务配置</div>
-        <div class="config-content">
-          <div class="config-item">
-            <label for="backend-api-url">后端 API 地址 (可选):</label>
-            <input 
-              type="text" 
-              id="backend-api-url" 
-              placeholder="http://localhost:3000"
-            >
-            <small>配置后端服务地址以使用去重和压缩功能</small>
-          </div>
-          
-          <div class="config-item">
-            <label for="tiny-png-key">TinyPNG API Key (可选):</label>
-            <input 
-              type="password" 
-              id="tiny-png-key" 
-              placeholder="your-tinypng-api-key"
-            >
-            <small>用于图片压缩，在 <a href="https://tinypng.com/developers" target="_blank">TinyPNG</a> 获取</small>
-          </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">OSS 上传配置</div>
-        <div class="config-content">
-          <div class="config-item">
-            <label for="oss-upload-url">上传接口地址:</label>
-            <input 
-              type="text" 
-              id="oss-upload-url" 
-              placeholder="https://file.jk.100cbc.com/api/sys/file"
-            >
-            <small>OSS 文件上传接口地址（直接上传模式）。可通过 .env 文件配置默认值</small>
-          </div>
-          
-          <div class="config-item">
-            <label for="oss-system-code">System Code:</label>
-            <input 
-              type="text" 
-              id="oss-system-code" 
-              placeholder="PHARMACY"
-            >
-            <small>可通过 .env 文件配置默认值</small>
-          </div>
-          
-          <div class="config-item">
-            <label for="oss-belong-code">Belong Code:</label>
-            <input 
-              type="text" 
-              id="oss-belong-code" 
-              placeholder="RP"
-            >
-            <small>可通过 .env 文件配置默认值</small>
-          </div>
-          
-          <div class="config-item">
-            <label for="oss-belong-id">Belong ID:</label>
-            <input 
-              type="text" 
-              id="oss-belong-id" 
-              placeholder="210304103256552626"
-            >
-            <small>可通过 .env 文件配置默认值</small>
-          </div>
-          <button id="save-oss-config-btn" class="primary-btn" style="width: 100%; margin-top: 12px;">
-            保存配置
-          </button>
-          <div id="ossConfigStatus" class="config-status hidden" style="margin-top: 10px;"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 设计文件信息区域 -->
-    <div class="section hidden" id="result-section">
-      <div class="section-title">设计文件信息</div>
-      <div id="result-content"></div>
-    </div>
-
-    <!-- 节点详情区域 -->
-    <div class="section hidden" id="node-info-section">
-      <div class="section-title">节点详情</div>
-      <div id="node-content"></div>
-    </div>
-  </div>
-
-  <script src="env.config.js"></script>
-  <script src="figma-mcp-utils.js"></script>
-  <script src="mcp-image-processor.js"></script>
-  <script src="popup.js"></script>
-</body>
+    <script src="env.config.js"></script>
+    <script src="figma-mcp-utils.js"></script>
+    <script src="mcp-image-processor.js"></script>
+    <script src="popup.js"></script>
+  </body>
 </html>
-

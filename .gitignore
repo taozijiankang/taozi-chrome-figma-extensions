@@ -10,7 +10,6 @@ package-lock.json
 Thumbs.db
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -23,3 +22,5 @@ npm-debug.log*
 dist/
 *.zip
 version.json
+
+.turbo/

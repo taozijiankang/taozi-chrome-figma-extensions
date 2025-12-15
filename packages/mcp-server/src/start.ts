@@ -34,6 +34,10 @@ async function start(options: AppStartOptions) {
    */
 
   const wsServer = new WebsocketServer(wsPort, '/ws');
+  // Home 页面使用的任务接口
+  const taskApiUrlForHome = `http://localhost:${mcpPort}/task`;
+  // MCP 工具调用的任务接口（返回纯文本字符串）
+  const taskApiUrlForMcp = `http://localhost:${mcpPort}/task/mcp`;
 
   /** 
    * 创建 HTTP 服务器
@@ -68,7 +72,7 @@ async function start(options: AppStartOptions) {
         });
 
         // Connect the transport to the MCP server BEFORE handling the request
-        const server = getMcpServer(wsServer);
+        const server = getMcpServer(taskApiUrlForMcp);
         await server.connect(transport);
         await transport.handleRequest(req, res, req.body);
         return; // Already handled
@@ -137,6 +141,19 @@ async function start(options: AppStartOptions) {
         success: false,
         error: error instanceof Error ? error.message : String(error)
       });
+    }
+  });
+
+  // MCP 工具专用任务接口（GET，返回纯字符串，便于工具直接输出）
+  app.get('/task/mcp', async (req: Request, res: Response) => {
+    try {
+      const taskType = (req.query.taskType as TaskType) || TaskType.GET_USER_SELECTED_FIGMA_UI_INFO;
+      const results = await wsServer.distributionTask(taskType);
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.send(JSON.stringify(results.filter(r => r.status === 'success').map(r => r.result?.code || '')));
+    } catch (error) {
+      console.error('派发任务失败 (mcp):', error);
+      res.status(500).type('text/plain').send(error instanceof Error ? error.message : String(error));
     }
   });
 
@@ -566,6 +583,10 @@ function generateMainPage(mcpPort: number, wsPort: number): string {
         <span id="test-btn-text">获取用户当前选择的 Figma UI 信息</span>
         <span id="test-btn-spinner" class="spinner" style="display: none;"></span>
       </button>
+      <button class="test-btn" id="mcp-test-btn" onclick="testMcpTask()" style="margin-top: 12px;">
+        <span id="mcp-test-btn-text">（MCP 接口）获取用户当前选择的 Figma UI 信息</span>
+        <span id="mcp-test-btn-spinner" class="spinner" style="display: none;"></span>
+      </button>
       <div class="test-results" id="test-results">
         <div class="test-results-header">
           <div class="test-results-title">执行结果</div>
@@ -585,6 +606,16 @@ function generateMainPage(mcpPort: number, wsPort: number): string {
           </div>
         </div>
         <div class="result-list" id="result-list"></div>
+      </div>
+      <div class="test-results" id="mcp-test-results" style="margin-top: 12px;">
+        <div class="test-results-header">
+          <div class="test-results-title">MCP 接口返回</div>
+        </div>
+        <div class="result-list" id="mcp-result-list">
+          <div class="result-item">
+            <div class="result-content" id="mcp-result-content">暂无结果</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -808,6 +839,67 @@ function generateMainPage(mcpPort: number, wsPort: number): string {
         document.getElementById('result-failed').textContent = '1';
       } finally {
         // 恢复按钮状态
+        btn.disabled = false;
+        btnText.style.display = 'inline';
+        btnSpinner.style.display = 'none';
+      }
+    }
+
+    // 测试 MCP 接口任务函数（GET /task/mcp，返回纯文本）
+    async function testMcpTask() {
+      const btn = document.getElementById('mcp-test-btn');
+      const btnText = document.getElementById('mcp-test-btn-text');
+      const btnSpinner = document.getElementById('mcp-test-btn-spinner');
+      const resultContent = document.getElementById('mcp-result-content');
+      const resultsDiv = document.getElementById('mcp-test-results');
+
+      btn.disabled = true;
+      btnText.style.display = 'none';
+      btnSpinner.style.display = 'block';
+      resultsDiv.classList.remove('show');
+      resultContent.textContent = '加载中...';
+
+      try {
+        const url = new URL(window.location.origin + '/task/mcp');
+        url.searchParams.set('taskType', 'get-user-selected-figma-ui-info');
+
+        const response = await fetch(url.toString(), { method: 'GET' });
+        const text = await response.text();
+
+        if (!response.ok) {
+          throw new Error(text || ('请求失败: ' + response.status));
+        }
+
+        // /task/mcp 返回的是字符串化的数组（成功的 code 列表）
+        let parsed = text;
+        try {
+          parsed = JSON.parse(text);
+        } catch {
+          // 如果解析失败，就直接展示原文本
+        }
+
+        if (Array.isArray(parsed)) {
+          resultContent.textContent = parsed.length
+            ? parsed.map((item, idx) => {
+                const value = typeof item === 'object' && item !== null
+                  ? JSON.stringify(item, null, 2)
+                  : (item || '空');
+                return '#' + (idx + 1) + ': ' + value;
+              }).join('\\n')
+            : '无结果';
+        } else if (typeof parsed === 'object' && parsed !== null) {
+          resultContent.textContent = JSON.stringify(parsed, null, 2);
+        } else {
+          resultContent.textContent = typeof parsed === 'string' && parsed.trim()
+            ? parsed
+            : text || '无结果';
+        }
+        resultsDiv.classList.add('show');
+      } catch (error) {
+        console.error('MCP 任务测试失败:', error);
+        resultContent.textContent = error?.message || String(error);
+        resultsDiv.classList.add('show');
+      } finally {
         btn.disabled = false;
         btnText.style.display = 'inline';
         btnSpinner.style.display = 'none';

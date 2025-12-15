@@ -73,6 +73,7 @@ async function start(options: AppStartOptions) {
         await transport.handleRequest(req, res, req.body);
         return; // Already handled
       } else {
+        console.log(`${dayjs().format('YYYY-MM-DD HH:mm:ss')} Invalid request - no session ID or not initialization request:`, req.body);
         // Invalid request - no session ID or not initialization request
         res.status(400).json({
           jsonrpc: '2.0',
@@ -116,8 +117,8 @@ async function start(options: AppStartOptions) {
     res.json(connectionsInfo);
   });
 
-  // 测试任务派发 API
-  app.post('/test-task', async (req: Request, res: Response) => {
+  // 统一任务派发 API（正式接口）
+  app.post('/task', async (req: Request, res: Response) => {
     try {
       const taskType = req.body.taskType || TaskType.GET_USER_SELECTED_FIGMA_UI_INFO;
       const results = await wsServer.distributionTask(taskType);
@@ -155,6 +156,9 @@ async function start(options: AppStartOptions) {
   });
 
   console.log(chalk.green(`MCP 版本: ${packageJson.version}`));
+  console.log(chalk.green(`MCP 名称: ${packageJson.name}`));
+  console.log(chalk.green(`MCP 描述: ${packageJson.description}`));
+  console.log(chalk.green(`MCP 启动时间: ${dayjs().format('YYYY-MM-DD HH:mm:ss')}`));
   console.log(chalk.green(`MCP 已启动 http://localhost:${mcpPort}`));
   console.log(chalk.green(`MCP 连接浏览器插件的WS 已启动 ws://localhost:${wsPort}`));
   console.log(chalk.blue(`MCP 服务器主页: http://localhost:${mcpPort}/`));
@@ -744,7 +748,7 @@ function generateMainPage(mcpPort: number, wsPort: number): string {
       resultList.innerHTML = '';
 
       try {
-        const response = await fetch('/test-task', {
+        const response = await fetch('/task', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

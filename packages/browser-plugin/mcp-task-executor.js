@@ -438,12 +438,202 @@ class MCPTaskExecutor {
    * 执行获取用户选择的 Figma UI 信息任务
    */
   async executeGetUserSelectedFigmaUIInfo() {
-    // TODO: 实现具体的任务逻辑
-    // 这里需要根据实际需求实现获取 Figma UI 信息的逻辑
-    return {
-      message: "任务执行成功",
-      data: null
+    // 目标：返回与在插件中“从当前页面读取”+“导出 JSON”一致的结构
+    // 1) 收集页面内的 Figma 数据（代码、静态资源等）
+    // 2) 补充 MCP 原始数据（如果配置了服务）
+    // 3) 组装导出 payload（与 popup 中 buildExportPayload 相同字段）
+    const figmaUrl = (typeof window !== "undefined" && window.location?.href) || "";
+    const { fileKey, nodeId } = this.parseFigmaUrl(figmaUrl);
+
+    // 收集页面侧数据（依赖 content.js 提供的辅助函数，如 extractFigmaData / getGeneratedCode 等）
+    const pageData = await this.collectPageData(figmaUrl);
+
+    // 优先使用页面数据中的信息
+    const finalFigmaUrl = pageData.figmaUrl || figmaUrl;
+    const finalFileKey = pageData?.mcpInfo?.fileKey || fileKey;
+    const finalNodeId = pageData?.mcpInfo?.nodeId || nodeId;
+
+    // MCP 原始数据（用于补充 design.mcpData）
+    let mcpData = pageData?.mcpInfo?.raw || null;
+    if (!mcpData && finalFileKey) {
+      try {
+        const resp = await chrome.runtime.sendMessage({
+          action: "fetchFigmaData",
+          fileKey: finalFileKey,
+          nodeId: finalNodeId
+        });
+        if (resp && resp.data) {
+          mcpData = resp.data;
+        }
+      } catch (err) {
+        console.warn("获取 MCP 数据失败，将继续使用页面数据:", err);
+      }
+    }
+
+    // 代码内容与语言
+    const codeInfo = pageData.generatedCode || pageData.codeInfo || {};
+    const codeContent = this.buildCodeContent(codeInfo, pageData);
+
+    // 依据 mcpData 提取图片节点（用于 assets.imageNodes）
+    const imageNodes = this.extractImageNodesFromMcp(mcpData);
+
+    // 构建与 popup 导出一致的 payload
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      design: {
+        figmaUrl: finalFigmaUrl,
+        fileKey: finalFileKey || null,
+        nodeId: finalNodeId || null,
+        mcpData
+      },
+      code: {
+        language: codeInfo.language || "",
+        content: codeContent || ""
+      },
+      assets: {
+        // 此处不在任务执行端自动批量处理/上传图片，保持与未处理前导出的结构一致
+        processedImages: [],
+        imageNodes,
+        uploadResults: []
+      }
     };
+
+    return payload;
+  }
+
+  /**
+   * 收集页面侧的 Figma 数据（复用 content.js 中的能力）
+   */
+  async collectPageData(figmaUrl) {
+    const data = {
+      figmaUrl
+    };
+
+    // 优先使用 extractFigmaData（content.js 暴露）
+    if (typeof extractFigmaData === "function") {
+      try {
+        const full = await extractFigmaData();
+        return full || data;
+      } catch (err) {
+        console.warn("extractFigmaData 执行失败，回退到单独收集:", err);
+      }
+    }
+
+    // 回退：分别调用已知的辅助函数（若存在）
+    if (typeof getMCPInfo === "function") {
+      try {
+        data.mcpInfo = getMCPInfo();
+      } catch (err) {
+        console.warn("getMCPInfo 失败:", err);
+      }
+    }
+
+    if (typeof getGeneratedCode === "function") {
+      try {
+        data.generatedCode = await getGeneratedCode();
+      } catch (err) {
+        console.warn("getGeneratedCode 失败:", err);
+      }
+    }
+
+    if (typeof getStaticResources === "function") {
+      try {
+        data.staticResources = await getStaticResources();
+      } catch (err) {
+        console.warn("getStaticResources 失败:", err);
+      }
+    }
+
+    if (!data.figmaUrl && typeof window !== "undefined") {
+      data.figmaUrl = window.location?.href;
+    }
+    return data;
+  }
+
+  /**
+   * 解析 Figma URL 获取 fileKey/nodeId
+   */
+  parseFigmaUrl(url) {
+    try {
+      const u = new URL(url);
+      const pathMatch = u.pathname.match(/\/design\/([^/]+)/);
+      const fileKey = pathMatch ? pathMatch[1] : null;
+      const nodeId = u.searchParams.get("node-id");
+      return { fileKey, nodeId };
+    } catch (err) {
+      return { fileKey: null, nodeId: null };
+    }
+  }
+
+  /**
+   * 构建代码内容（对齐 popup 中 buildExportPayload 的逻辑）
+   */
+  buildCodeContent(codeInfo = {}) {
+    if (
+      codeInfo.lines &&
+      Array.isArray(codeInfo.lines) &&
+      codeInfo.lines.length > 0
+    ) {
+      return codeInfo.lines
+        .map((line) => line.content || line.text || line.code || "")
+        .join("\n");
+    }
+    return (
+      codeInfo.fullCode ||
+      codeInfo.code ||
+      codeInfo.content ||
+      codeInfo.preview ||
+      ""
+    );
+  }
+
+  /**
+   * 从 MCP 数据中提取图片节点（简化版，足以用于导出 JSON）
+   */
+  extractImageNodesFromMcp(mcpData) {
+    if (!mcpData || !mcpData.nodes) return [];
+
+    const imageNodes = [];
+
+    const visit = (node) => {
+      if (!node) return;
+      const fills = node.fills || [];
+      const imageFill = fills.find((f) => f.type === "IMAGE");
+      const isImageType =
+        node.type === "IMAGE" || node.type === "IMAGE-SVG" || node.type === "VECTOR";
+
+      if (isImageType || imageFill) {
+        imageNodes.push({
+          id: node.id,
+          name: node.name,
+          type: node.type,
+          width: node.layout?.dimensions?.width || null,
+          height: node.layout?.dimensions?.height || null,
+          x: node.layout?.locationRelativeToParent?.x || 0,
+          y: node.layout?.locationRelativeToParent?.y || 0,
+          layout: node.layout,
+          imageFill,
+          imageRef: imageFill?.imageRef || null,
+          opacity: node.opacity,
+          visible: node.visible,
+          locked: node.locked,
+          rotation: node.rotation,
+          borderRadius: node.borderRadius
+        });
+      }
+
+      if (Array.isArray(node.children)) {
+        node.children.forEach(visit);
+      }
+    };
+
+    if (Array.isArray(mcpData.nodes)) {
+      mcpData.nodes.forEach(visit);
+    } else if (mcpData.id) {
+      visit(mcpData);
+    }
+
+    return imageNodes;
   }
 
   /**

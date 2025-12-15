@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsc -b -w",
-    "dev-start": "nodemon dist/start.js --watch dist",
+    "dev:start": "nodemon dist/start.js --watch dist",
     "build": "tsc -b",
     "start": "node dist/start.js"
   },

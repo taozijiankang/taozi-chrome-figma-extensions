@@ -21,7 +21,7 @@ export function getMcpServer(taskApiUrl: string) {
     server.registerTool(
         'get-figma-ui-info-json',
         {
-            description: '获取我选择的 Figma UI 节点信息 JSON 数据',
+            description: '获取我选择的 Figma UI 信息的 JSON 数据',
             inputSchema: {}
         },
         async (): Promise<CallToolResult> => {

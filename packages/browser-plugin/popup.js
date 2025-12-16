@@ -2185,10 +2185,10 @@ function downloadJsonFile(payload) {
 
 // 导出 JSON（无图片情况）
 /**
- * @param {(j: string)=>void} [cuJson] 
+ * @param {(j: string)=>void} [mcpGetJson] 
  * @returns 
  */
-function handleExportJsonNoImages(cuJson) {
+function handleExportJsonNoImages(mcpGetJson) {
   if (!currentData) {
     showError("请先读取 Figma 数据");
     return;
@@ -2200,8 +2200,8 @@ function handleExportJsonNoImages(cuJson) {
   try {
     const payload = buildExportPayload();
 
-    if (cuJson) {
-      cuJson(payload);
+    if (mcpGetJson) {
+      mcpGetJson(payload);
     }
     else {
       const fileName = downloadJsonFile(payload);
@@ -2223,10 +2223,10 @@ function handleExportJsonNoImages(cuJson) {
 }
 
 /**
- * @param {(j: string)=>void} [cuJson] 
+ * @param {(j: string)=>void} [mcpGetJson] 
  * @returns 
  */
-function handleExportJson(cuJson) {
+function handleExportJson(mcpGetJson) {
   if (!currentData) {
     showError("请先读取 Figma 数据");
     return;
@@ -2235,7 +2235,7 @@ function handleExportJson(cuJson) {
   // 只要有数据就可以导出，不需要等待批量处理完成
   // 如果没有处理结果，直接使用无图片的导出逻辑
   if (!lastProcessResult) {
-    handleExportJsonNoImages(cuJson);
+    handleExportJsonNoImages(mcpGetJson);
     return;
   }
 
@@ -2245,8 +2245,8 @@ function handleExportJson(cuJson) {
   try {
     const payload = buildExportPayload();
 
-    if (cuJson) {
-      cuJson(JSON.stringify(payload, null, 2));
+    if (mcpGetJson) {
+      mcpGetJson(JSON.stringify(payload, null, 2));
     } else {
       const fileName = downloadJsonFile(payload);
 

@@ -21,6 +21,7 @@ const FILES_TO_COPY = [
   "styles.css",
   "figma-mcp-utils.js",
   "mcp-image-processor.js",
+  "popup-mcp-task-executor.js",
   "env.config.js", // 环境变量配置文件
   "icons"
 ];

@@ -1,7 +1,7 @@
 {
   "name": "@taozi-chrome-figma-extensions/browser-plugin",
   "version": "1.0.0",
-  "description": "桃子科技的Figma浏览器插件",
+  "description": "桃子科技的Figma浏览器插件 ",
   "main": "mcp-server-example.js",
   "scripts": {
     "server": "node mcp-server-example.js",

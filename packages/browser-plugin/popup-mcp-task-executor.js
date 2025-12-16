@@ -57,6 +57,9 @@ class MCPTaskExecutor {
         // 创建连接状态显示元素
         this.createStatusElement();
 
+        // 创建全局 loading mask
+        this.createLoadingMask();
+
         // 自动连接
         this.connect();
     }
@@ -94,6 +97,75 @@ class MCPTaskExecutor {
 
         this.statusElement = statusElement;
         this.updateConnectionStatus('disconnected');
+    }
+
+    /**
+     * 创建全局 loading mask
+     */
+    createLoadingMask() {
+        // 检查是否已存在 mask
+        let mask = document.getElementById('mcp-task-loading-mask');
+        if (!mask) {
+            mask = document.createElement('div');
+            mask.id = 'mcp-task-loading-mask';
+            mask.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                backdrop-filter: blur(2px);
+            `;
+            mask.innerHTML = `
+                <div style="
+                    background: white;
+                    padding: 24px 32px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 16px;
+                    min-width: 200px;
+                ">
+                    <div class="spinner"></div>
+                    <div style="
+                        color: #333;
+                        font-size: 14px;
+                        font-weight: 500;
+                        text-align: center;
+                    ">正在执行 MCP 任务...</div>
+                </div>
+            `;
+            document.body.appendChild(mask);
+        }
+        this.loadingMask = mask;
+    }
+
+    /**
+     * 显示全局 loading mask
+     */
+    showLoadingMask() {
+        if (!this.loadingMask) {
+            this.createLoadingMask();
+        }
+        if (this.loadingMask) {
+            this.loadingMask.style.display = 'flex';
+        }
+    }
+
+    /**
+     * 隐藏全局 loading mask
+     */
+    hideLoadingMask() {
+        if (this.loadingMask) {
+            this.loadingMask.style.display = 'none';
+        }
     }
 
     /**
@@ -277,6 +349,9 @@ class MCPTaskExecutor {
 
         console.log("收到任务:", { taskType, taskId, status });
 
+        // 显示全局 loading mask
+        this.showLoadingMask();
+
         try {
             let result = null;
 
@@ -297,10 +372,9 @@ class MCPTaskExecutor {
             this.sendTaskResult({
                 taskType,
                 taskId,
-                status: "success",
+                status: result ? 'success' : "failed",
                 result: result
             });
-
 
         } catch (error) {
             console.error("执行任务失败:", error);
@@ -311,6 +385,9 @@ class MCPTaskExecutor {
                 result: JSON.stringify({ error: error.message || String(error) })
             });
 
+        } finally {
+            // 隐藏全局 loading mask
+            this.hideLoadingMask();
         }
     }
 

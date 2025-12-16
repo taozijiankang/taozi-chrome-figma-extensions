@@ -2191,6 +2191,7 @@ function downloadJsonFile(payload) {
 function handleExportJsonNoImages(mcpGetJson) {
   if (!currentData) {
     showError("请先读取 Figma 数据");
+    mcpGetJson?.('')
     return;
   }
 
@@ -2229,6 +2230,7 @@ function handleExportJsonNoImages(mcpGetJson) {
 function handleExportJson(mcpGetJson) {
   if (!currentData) {
     showError("请先读取 Figma 数据");
+    mcpGetJson?.('')
     return;
   }
 

@@ -1628,7 +1628,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const exportBtn = document.getElementById("export-json-btn");
   if (exportBtn) {
-    exportBtn.addEventListener("click", handleExportJson);
+    exportBtn.addEventListener("click", () => {
+      handleExportJson();
+    });
   }
 
   // 刷新已上传图片列表按钮

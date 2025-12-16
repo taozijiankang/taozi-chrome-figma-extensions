@@ -1,12 +1,28 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:start": {
+      "with": [
+        "dev"
+      ],
+      "cache": false,
+      "persistent": true
+    },
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false
     },
     "package": {
-      "dependsOn": ["@taozi-chrome-figma-extensions/mcp-server#build", "@taozi-chrome-figma-extensions/browser-plugin#build"],
+      "dependsOn": [
+        "@taozi-chrome-figma-extensions/mcp-server#build",
+        "@taozi-chrome-figma-extensions/browser-plugin#build"
+      ],
       "cache": false
     }
   }

@@ -387,18 +387,16 @@ function displayMCPInfo(mcpInfo) {
         ${mcpUrl}
       </a>
       <button class="copy-btn" data-action="copy-mcp-url" data-url="${escapeHtml(
-        mcpUrl
-      )}">复制</button>
+    mcpUrl
+  )}">复制</button>
     </div>
-    ${
-      mcpInfo.promptText
-        ? `<div style="margin-top: 8px; font-size: 12px; color: #666;">提示: ${mcpInfo.promptText}</div>`
-        : ""
+    ${mcpInfo.promptText
+      ? `<div style="margin-top: 8px; font-size: 12px; color: #666;">提示: ${mcpInfo.promptText}</div>`
+      : ""
     }
-    ${
-      mcpInfo.nodeId
-        ? `<div style="margin-top: 4px; font-size: 11px; color: #999;">Node ID: ${mcpInfo.nodeId}</div>`
-        : ""
+    ${mcpInfo.nodeId
+      ? `<div style="margin-top: 4px; font-size: 11px; color: #999;">Node ID: ${mcpInfo.nodeId}</div>`
+      : ""
     }
   `;
 
@@ -498,7 +496,7 @@ async function displayImages(resources, mcpData = null) {
   const pngCount = pngNodes.length;
   const groupCount = groupNodes.length;
   const totalCount = pngCount + groupCount;
-  
+
   // 调试日志：输出统计信息
   console.log('[displayImages] 资源统计:', {
     totalNodes: mcpImageNodes.length,
@@ -570,19 +568,17 @@ async function displayImages(resources, mcpData = null) {
     </div>
     <div class="images-grid" style="max-height: 400px; overflow-y: auto; padding-right: 2px;">
       ${mcpImageNodes
-        .map((node, index) => {
-          const displayName = node.name || `resource_${index + 1}`;
-          const resourceTypeLabel = node.type === "GROUP" ? "SVG" : "PNG";
-          const resourceTypeColor =
-            node.type === "GROUP" ? "#667eea" : "#4caf50";
-          const isSelected = window.imageSelectionState[index] !== false; // 默认选中
-          const nodeId = node.id.replace(/:/g, "-");
+      .map((node, index) => {
+        const displayName = node.name || `resource_${index + 1}`;
+        const resourceTypeLabel = node.type === "GROUP" ? "SVG" : "PNG";
+        const resourceTypeColor =
+          node.type === "GROUP" ? "#667eea" : "#4caf50";
+        const isSelected = window.imageSelectionState[index] !== false; // 默认选中
+        const nodeId = node.id.replace(/:/g, "-");
 
-          return `
-        <div class="image-item-selectable ${
-          isSelected ? "selected" : ""
-        }" data-node-index="${index}" data-node-id="${nodeId}" style="border-color: ${
-            isSelected ? resourceTypeColor : "#e0e0e0"
+        return `
+        <div class="image-item-selectable ${isSelected ? "selected" : ""
+          }" data-node-index="${index}" data-node-id="${nodeId}" style="border-color: ${isSelected ? resourceTypeColor : "#e0e0e0"
           };">
           <div style="display: flex; align-items: start; gap: 4px;">
             <input 
@@ -602,19 +598,17 @@ async function displayImages(resources, mcpData = null) {
               <div style="font-size: 8px; color: #64748b; margin-bottom: 1px; line-height: 1.1;">
                 ${node.width || "?"} × ${node.height || "?"}
               </div>
-              ${
-                node.imageRef
-                  ? `<div style="font-size: 7px; color: #667eea; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Courier New', monospace; line-height: 1.1;" title="${
-                      node.imageRef
-                    }">${node.imageRef.substring(0, 10)}...</div>`
-                  : ""
-              }
+              ${node.imageRef
+            ? `<div style="font-size: 7px; color: #667eea; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Courier New', monospace; line-height: 1.1;" title="${node.imageRef
+            }">${node.imageRef.substring(0, 10)}...</div>`
+            : ""
+          }
             </div>
           </div>
         </div>
       `;
-        })
-        .join("")}
+      })
+      .join("")}
     </div>
   `;
 
@@ -1005,10 +999,10 @@ async function loadFigmaDataFromPage() {
     "mcpServer",
     "mcpServerUrl",
   ]);
-  
+
   const hasToken = configResult.mcpToken || configResult.figmaAccessToken;
   const hasMcpServer = configResult.mcpServer || configResult.mcpServerUrl;
-  
+
   // 如果没有配置 token 也没有配置 MCP 服务器，则拦截并提示
   if (!hasToken && !hasMcpServer) {
     updateOperationState(OperationState.ERROR, null);
@@ -1124,9 +1118,9 @@ async function loadFigmaDataFromPage() {
         // 如果 MCP 数据存在，使用 MCP 的 mcpInfo，否则使用 content script 的
         mcpInfo: mcpInfo ||
           response.data.mcpInfo || {
-            figmaUrl: tab.url,
-            nodeId: nodeId,
-          },
+          figmaUrl: tab.url,
+          nodeId: nodeId,
+        },
       };
 
       currentData = data;
@@ -1353,50 +1347,42 @@ async function loadUploadedImages() {
             data-error-placeholder="加载失败"
           />
           <div class="image-info">
-            <div style="font-weight: 500;" title="${
-              item.name || item.fileName || "image"
+            <div style="font-weight: 500;" title="${item.name || item.fileName || "image"
             }">${escapeHtml(item.name || item.fileName || "未命名")}</div>
-            ${
-              item.width && item.height
-                ? `<div style="color: #999; font-size: 10px;">${item.width} × ${item.height}</div>`
-                : ""
+            ${item.width && item.height
+              ? `<div style="color: #999; font-size: 10px;">${item.width} × ${item.height}</div>`
+              : ""
             }
-            ${
-              item.imageRef
-                ? `<div style="color: #667eea; font-size: 9px; margin-top: 2px;">ImageRef: ${item.imageRef.substring(
-                    0,
-                    12
-                  )}...</div>`
-                : ""
+            ${item.imageRef
+              ? `<div style="color: #667eea; font-size: 9px; margin-top: 2px;">ImageRef: ${item.imageRef.substring(
+                0,
+                12
+              )}...</div>`
+              : ""
             }
             <div style="display: flex; align-items: center; gap: 4px; margin-top: 2px;">
               <span style="color: #4caf50; font-size: 9px;">✓ 已上传到 OSS</span>
-              ${
-                item.isCompressed !== undefined
-                  ? `<span style="color: ${
-                      item.isCompressed ? "#10b981" : "#ef4444"
-                    }; font-size: 9px; padding: 1px 4px; background: ${
-                      item.isCompressed ? "#d1fae5" : "#fee2e2"
-                    }; border-radius: 2px;">
+              ${item.isCompressed !== undefined
+              ? `<span style="color: ${item.isCompressed ? "#10b981" : "#ef4444"
+              }; font-size: 9px; padding: 1px 4px; background: ${item.isCompressed ? "#d1fae5" : "#fee2e2"
+              }; border-radius: 2px;">
                       ${item.isCompressed ? "已压缩" : "未压缩"}
                     </span>`
-                  : ""
-              }
-              ${
-                item.sameRecord
-                  ? `<span style="color: #667eea; font-size: 9px; padding: 1px 4px; background: #e0e7ff; border-radius: 2px;">已存在</span>`
-                  : ""
-              }
+              : ""
+            }
+              ${item.sameRecord
+              ? `<span style="color: #667eea; font-size: 9px; padding: 1px 4px; background: #e0e7ff; border-radius: 2px;">已存在</span>`
+              : ""
+            }
             </div>
-            ${
-              item.uploadTime
-                ? `<div style="color: #999; font-size: 9px; margin-top: 2px;">${item.uploadTime}</div>`
-                : ""
+            ${item.uploadTime
+              ? `<div style="color: #999; font-size: 9px; margin-top: 2px;">${item.uploadTime}</div>`
+              : ""
             }
             <div class="image-url" title="${item.ossUrl}">${truncateUrl(
-            item.ossUrl,
-            30
-          )}</div>
+              item.ossUrl,
+              30
+            )}</div>
             <div style="margin-top: 6px;">
               <button 
                 class="copy-btn" 
@@ -1747,7 +1733,7 @@ async function handleProcessMCPImages() {
     // 获取图片下载倍率
     const pngScaleSelect = document.getElementById("png-scale");
     const pngScale = pngScaleSelect ? parseFloat(pngScaleSelect.value) : 2;
-    
+
     // 调试日志：确认获取的 pngScale 值
     console.log(`[popup.js] 获取的 pngScale:`, {
       selectElement: pngScaleSelect ? "存在" : "不存在",
@@ -1793,7 +1779,7 @@ async function handleProcessMCPImages() {
         pngScale: pngScale,
         pngScaleType: typeof pngScale
       });
-      
+
       return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(
           {
@@ -1839,23 +1825,19 @@ async function handleProcessMCPImages() {
       processResultContent.innerHTML = `
         <div style="text-align: center; padding: 20px;">
           <div class="spinner"></div>
-          <div style="margin-top: 12px; color: #666;">准备处理 ${
-            selectedImageNodes.length
-          } 个图片...</div>
+          <div style="margin-top: 12px; color: #666;">准备处理 ${selectedImageNodes.length
+        } 个图片...</div>
           <div style="margin-top: 8px; font-size: 12px; color: #999;">
             下载图片 (${pngScale}x) → 上传到后端服务 → 生成结果
             ${enableCompression ? "（启用压缩）" : ""}
           </div>
           <div id="upload-progress" style="margin-top: 16px; font-size: 12px; color: #667eea;">
-            <div>下载进度: <span id="download-current">0</span> / <span id="download-total">${
-              selectedImageNodes.length
-            }</span></div>
-            <div style="margin-top: 8px;">上传进度: <span id="upload-current">0</span> / <span id="upload-total">${
-              selectedImageNodes.length
-            }</span></div>
-            <div style="margin-top: 8px; color: #999;">剩余: <span id="upload-remaining">${
-              selectedImageNodes.length
-            }</span> 个</div>
+            <div>下载进度: <span id="download-current">0</span> / <span id="download-total">${selectedImageNodes.length
+        }</span></div>
+            <div style="margin-top: 8px;">上传进度: <span id="upload-current">0</span> / <span id="upload-total">${selectedImageNodes.length
+        }</span></div>
+            <div style="margin-top: 8px; color: #999;">剩余: <span id="upload-remaining">${selectedImageNodes.length
+        }</span> 个</div>
           </div>
         </div>
       `;
@@ -2006,8 +1988,8 @@ function displayProcessResult(finalData, processResult) {
     </div>
     <div class="images-grid">
       ${finalData
-        .map((item) => {
-          return `
+      .map((item) => {
+        return `
         <div class="image-item">
           <img 
             src="${item.ossUrl}" 
@@ -2018,39 +2000,33 @@ function displayProcessResult(finalData, processResult) {
           />
           <div class="image-info">
             <div style="font-weight: 500;" title="${item.name}">${escapeHtml(
-            item.name
-          )}</div>
-            ${
-              item.width && item.height
-                ? `<div style="color: #999; font-size: 10px;">${item.width} × ${item.height}</div>`
-                : ""
-            }
-            ${
-              item.imageRef
-                ? `<div style="color: #667eea; font-size: 9px; margin-top: 2px;">ImageRef: ${item.imageRef.substring(
-                    0,
-                    12
-                  )}...</div>`
-                : ""
-            }
+          item.name
+        )}</div>
+            ${item.width && item.height
+            ? `<div style="color: #999; font-size: 10px;">${item.width} × ${item.height}</div>`
+            : ""
+          }
+            ${item.imageRef
+            ? `<div style="color: #667eea; font-size: 9px; margin-top: 2px;">ImageRef: ${item.imageRef.substring(
+              0,
+              12
+            )}...</div>`
+            : ""
+          }
             <div style="display: flex; align-items: center; gap: 4px; margin-top: 2px; flex-wrap: wrap;">
               <span style="color: #4caf50; font-size: 9px;">✓ 已上传到 OSS</span>
-              ${
-                item.isCompressed !== undefined
-                  ? `<span style="color: ${
-                      item.isCompressed ? "#10b981" : "#ef4444"
-                    }; font-size: 9px; padding: 1px 4px; background: ${
-                      item.isCompressed ? "#d1fae5" : "#fee2e2"
-                    }; border-radius: 2px;">
+              ${item.isCompressed !== undefined
+            ? `<span style="color: ${item.isCompressed ? "#10b981" : "#ef4444"
+            }; font-size: 9px; padding: 1px 4px; background: ${item.isCompressed ? "#d1fae5" : "#fee2e2"
+            }; border-radius: 2px;">
                       ${item.isCompressed ? "已压缩" : "未压缩"}
                     </span>`
-                  : ""
-              }
-              ${
-                item.sameRecord
-                  ? `<span style="color: #667eea; font-size: 9px; padding: 1px 4px; background: #e0e7ff; border-radius: 2px;">已存在</span>`
-                  : ""
-              }
+            : ""
+          }
+              ${item.sameRecord
+            ? `<span style="color: #667eea; font-size: 9px; padding: 1px 4px; background: #e0e7ff; border-radius: 2px;">已存在</span>`
+            : ""
+          }
             </div>
             <div class="image-url" title="${item.ossUrl}">${truncateUrl(
             item.ossUrl,
@@ -2069,8 +2045,8 @@ function displayProcessResult(finalData, processResult) {
           </div>
         </div>
       `;
-        })
-        .join("")}
+      })
+      .join("")}
     </div>
     <div style="margin-top: 16px; padding: 12px; background: #f5f5f5; border-radius: 6px; font-size: 12px;">
       <div style="font-weight: 500; margin-bottom: 8px;">处理结果数据（JSON）:</div>
@@ -2208,9 +2184,14 @@ function downloadJsonFile(payload) {
 }
 
 // 导出 JSON（无图片情况）
-function handleExportJsonNoImages() {
+/**
+ * @param {(j: string)=>void} [mcpGetJson] 
+ * @returns 
+ */
+function handleExportJsonNoImages(mcpGetJson) {
   if (!currentData) {
     showError("请先读取 Figma 数据");
+    mcpGetJson?.('')
     return;
   }
 
@@ -2219,13 +2200,19 @@ function handleExportJsonNoImages() {
 
   try {
     const payload = buildExportPayload();
-    const fileName = downloadJsonFile(payload);
 
-    console.log("JSON 导出成功（无图片）:", fileName);
+    if (mcpGetJson) {
+      mcpGetJson(payload);
+    }
+    else {
+      const fileName = downloadJsonFile(payload);
 
+      console.log("JSON 导出成功（无图片）:", fileName);
+
+      showSuccessMessage(`JSON 文件已导出: ${fileName}`, 3000);
+    }
     // 操作成功
     updateOperationState(OperationState.SUCCESS, null);
-    showSuccessMessage(`JSON 文件已导出: ${fileName}`, 3000);
   } catch (error) {
     console.error("导出 JSON 失败:", error);
     updateOperationState(OperationState.ERROR, null);
@@ -2236,16 +2223,21 @@ function handleExportJsonNoImages() {
   }
 }
 
-function handleExportJson() {
+/**
+ * @param {(j: string)=>void} [mcpGetJson] 
+ * @returns 
+ */
+function handleExportJson(mcpGetJson) {
   if (!currentData) {
     showError("请先读取 Figma 数据");
+    mcpGetJson?.('')
     return;
   }
 
   // 只要有数据就可以导出，不需要等待批量处理完成
   // 如果没有处理结果，直接使用无图片的导出逻辑
   if (!lastProcessResult) {
-    handleExportJsonNoImages();
+    handleExportJsonNoImages(mcpGetJson);
     return;
   }
 
@@ -2254,13 +2246,17 @@ function handleExportJson() {
 
   try {
     const payload = buildExportPayload();
-    const fileName = downloadJsonFile(payload);
 
-    console.log("JSON 导出成功:", fileName);
+    if (mcpGetJson) {
+      mcpGetJson(JSON.stringify(payload, null, 2));
+    } else {
+      const fileName = downloadJsonFile(payload);
 
-    // 操作成功
+      console.log("JSON 导出成功:", fileName);
+      // 操作成功
+      showSuccessMessage(`JSON 文件已导出: ${fileName}`, 3000);
+    }
     updateOperationState(OperationState.SUCCESS, null);
-    showSuccessMessage(`JSON 文件已导出: ${fileName}`, 3000);
   } catch (error) {
     console.error("导出 JSON 失败:", error);
     updateOperationState(OperationState.ERROR, null);
@@ -2575,3 +2571,5 @@ window.downloadImage = downloadImage;
 window.uploadImage = uploadImage;
 window.handleImageAction = handleImageAction;
 window.toggleImageSelection = toggleImageSelection;
+window.handleExportJson = handleExportJson;
+window.buildExportPayload = buildExportPayload;

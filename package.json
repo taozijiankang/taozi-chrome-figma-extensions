@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "taozi科技的谷歌浏览器Figma扩展工具",
   "scripts": {
+    "turbo:dev": "turbo run dev",
+    "turbo:dev:start": "turbo run dev:start",
+    "turbo:build": "turbo run build",
     "turbo:package": "turbo run package"
   },
   "keywords": [],

@@ -19,9 +19,9 @@ export function getMcpServer(taskApiUrl: string) {
 
     // Register a simple tool that returns a greeting
     server.registerTool(
-        'get-figma-ui-info',
+        'get-figma-ui-info-json',
         {
-            description: '获取我在Figma 网页中选择的 UI 节点信息',
+            description: '获取我选择的 Figma UI 节点信息 JSON 数据',
             inputSchema: {}
         },
         async (): Promise<CallToolResult> => {

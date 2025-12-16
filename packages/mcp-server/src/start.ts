@@ -150,7 +150,7 @@ async function start(options: AppStartOptions) {
       const taskType = (req.query.taskType as TaskType) || TaskType.GET_USER_SELECTED_FIGMA_UI_INFO;
       const results = await wsServer.distributionTask(taskType);
       res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-      res.send(JSON.stringify(results.filter(r => r.status === 'success').map(r => r.result?.code || '')));
+      res.send(JSON.stringify(results.filter(r => r.status === 'success').map(r => r.result || '')));
     } catch (error) {
       console.error('派发任务失败 (mcp):', error);
       res.status(500).type('text/plain').send(error instanceof Error ? error.message : String(error));

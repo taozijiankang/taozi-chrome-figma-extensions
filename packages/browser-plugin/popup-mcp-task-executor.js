@@ -368,6 +368,8 @@ class MCPTaskExecutor {
                     result = { error: `未知的任务类型: ${taskType}` };
             }
 
+            console.log('任务结果:', result);
+
             // 发送任务结果
             this.sendTaskResult({
                 taskType,

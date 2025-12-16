@@ -33,8 +33,7 @@
         "https://*.figma.com/*"
       ],
       "js": [
-        "content.js",
-        "mcp-task-executor.js"
+        "content.js"
       ],
       "run_at": "document_idle",
       "all_frames": false
